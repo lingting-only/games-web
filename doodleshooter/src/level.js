@@ -7,7 +7,7 @@ import { rand, choose, TAU } from './util.js';
 import { buildHumanoid } from './enemies.js';
 
 // Doodle Mexico is built and kept, but off the menu until it is ready; flip this to offer it again
-export const MEXICO_READY = false;
+export const MEXICO_READY = true;
 export const LEVELS = [{ key: 'district', name: '涂鸦街区', blurb: '街道、屋顶与消防梯' }, ...(MEXICO_READY ? [{ key: 'mexico', name: '涂鸦墨西哥', blurb: '阳光烘烤的广场 · 皮纳塔、塔可和马里亚奇乐队' }] : [])];
 
 function createBuilder(scene, world) {
