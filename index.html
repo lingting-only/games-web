@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>游戏本 · Games</title>
+<meta name="description" content="画在作业本上的小游戏合集。">
+<meta name="theme-color" content="#f6f3e6">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%23f6f3e6'/><circle cx='16' cy='16' r='8' fill='none' stroke='%231a30c0' stroke-width='2'/><path d='M16 4v6M16 22v6M4 16h6M22 16h6' stroke='%231a30c0' stroke-width='2'/><circle cx='16' cy='16' r='2' fill='%23d02030'/></svg>">
+<style>
+:root {
+  --ink: #1a30c0;
+  --ink-soft: rgba(26, 48, 192, .16);
+  --red: #d02030;
+  --paper: #f6f3e6;
+  --card: rgba(252, 250, 241, .93);
+  --font: 'Comic Sans MS', 'Marker Felt', 'Segoe Print', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  font-family: var(--font);
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(90deg, rgba(208, 32, 48, .22) 0 1.5px, transparent 1.5px),
+    repeating-linear-gradient(0deg, transparent 0 31px, rgba(26, 48, 192, .11) 31px 32.5px);
+  background-position: 92px 0, 0 0;
+  background-repeat: no-repeat, repeat;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 60px 28px 48px;
+}
+
+header {
+  margin-bottom: 44px;
+  animation: settle .5s ease-out both;
+}
+
+.kicker {
+  font-size: 15px;
+  letter-spacing: 3px;
+  opacity: .65;
+  margin-bottom: 6px;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(46px, 8vw, 86px);
+  line-height: 1.05;
+  letter-spacing: 3px;
+  font-weight: normal;
+  transform: rotate(-1.6deg);
+  transform-origin: left center;
+  text-decoration: underline wavy rgba(26, 48, 192, .45);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 12px;
+}
+
+.sub {
+  margin: 18px 0 0;
+  font-size: 18px;
+  opacity: .78;
+  transform: rotate(.4deg);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 30px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  color: var(--ink);
+  text-decoration: none;
+  background: var(--card);
+  border: 3px solid var(--ink);
+  border-radius: 14px 20px 12px 18px / 18px 12px 20px 14px;
+  box-shadow: 7px 8px 0 var(--ink-soft);
+  overflow: hidden;
+  transform: rotate(var(--tilt, -.5deg));
+  transition: transform .22s ease, box-shadow .22s ease;
+  animation: settle .55s ease-out both;
+}
+
+.grid > .card:nth-child(3n+2) { --tilt: .55deg; }
+.grid > .card:nth-child(3n) { --tilt: -.15deg; }
+
+.card:not(.ghost):hover,
+.card:not(.ghost):focus-visible {
+  transform: rotate(0deg) translateY(-7px);
+  box-shadow: 12px 16px 0 rgba(26, 48, 192, .18);
+  outline: none;
+}
+
+.card:not(.ghost):focus-visible {
+  outline: 3px dashed var(--red);
+  outline-offset: 4px;
+}
+
+.thumb {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: #fbf9ef;
+  border-bottom: 2px dashed rgba(26, 48, 192, .4);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thumb svg { width: 100%; height: 100%; display: block; }
+
+.body { padding: 18px 22px 22px; }
+
+.name {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.name h2 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: normal;
+  letter-spacing: 1px;
+}
+
+.name span {
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  opacity: .55;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0 12px;
+}
+
+.tag {
+  font-size: 12.5px;
+  padding: 2px 9px;
+  border: 2px solid rgba(26, 48, 192, .55);
+  border-radius: 8px 11px 7px 10px / 10px 7px 11px 8px;
+  opacity: .8;
+}
+
+.desc {
+  margin: 0;
+  font-size: 15.5px;
+  line-height: 1.6;
+  opacity: .82;
+}
+
+.go {
+  margin-top: 16px;
+  font-size: 17px;
+  color: var(--red);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.go .arrow { transition: transform .22s ease; }
+.card:hover .go .arrow,
+.card:focus-visible .go .arrow { transform: translateX(5px); }
+
+.ghost {
+  border-style: dashed;
+  background: rgba(252, 250, 241, .5);
+  box-shadow: none;
+  cursor: default;
+}
+
+.ghost .thumb {
+  border-bottom-color: rgba(26, 48, 192, .22);
+  background: transparent;
+}
+
+.ghost .body { opacity: .5; }
+.ghost .name h2 { font-size: 22px; }
+
+footer {
+  margin-top: 46px;
+  padding-top: 20px;
+  border-top: 2px dashed rgba(26, 48, 192, .35);
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 14px;
+  opacity: .6;
+  animation: settle .6s .2s ease-out both;
+}
+
+@keyframes settle {
+  from { opacity: 0; transform: translateY(14px) rotate(var(--tilt, 0deg)); }
+  to   { opacity: 1; transform: translateY(0) rotate(var(--tilt, 0deg)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+@media (max-width: 640px) {
+  body { background-position: 42px 0, 0 0; }
+  .wrap { padding: 40px 18px 36px; }
+  .grid { grid-template-columns: 1fr; gap: 24px; }
+  header { margin-bottom: 32px; }
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <div class="kicker">GAMES · 持续更新</div>
+    <h1>游戏本</h1>
+    <p class="sub">画在作业本上的小游戏，挑一个，点开就能玩。</p>
+  </header>
+
+  <section class="grid" id="grid" aria-label="游戏列表"></section>
+
+  <footer>
+    <span id="count"></span>
+    <span>更多游戏正在涂鸦中…</span>
+  </footer>
+</main>
+
+<script>
+/* 新增游戏：在 GAMES 里加一项即可。href 指向游戏目录（目录里放 index.html）。 */
+const GAMES = [
+  {
+    title: '涂鸦街区',
+    en: 'Doodle District',
+    desc: '用蓝圆珠笔在作业本上画出来的第一人称射击。抓钩翻越楼顶，把子弹削回涂鸦怪，看看能撑过多少波。',
+    tags: ['第一人称射击', '3D', '单人 / 联机'],
+    href: './doodleshooter/',
+    art: 'shooter'
+  }
+];
+
+function art(name) {
+  if (name === 'shooter') {
+    return `<svg viewBox="0 0 320 180" aria-hidden="true">
+      <g fill="none" stroke="#1a30c0" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M-4 152 L58 152 L72 120 L126 120 L140 152 L198 152" stroke-width="2.5" opacity=".45"/>
+        <path d="M186 152 L228 152 L242 114 L300 114 L318 152" stroke-width="2.5" opacity=".45"/>
+        <path d="M118 138 q22 -13 44 0" stroke-width="2" opacity=".4"/>
+        <path d="M36 96 l14 -7 M44 109 l14 -7 M24 83 l14 -7" stroke-width="1.8" opacity=".45"/>
+        <g transform="rotate(-4 258 70)">
+          <circle cx="258" cy="62" r="13" stroke-width="2.6"/>
+          <path d="M251 59 l4 4 M265 59 l-4 4" stroke-width="2.2"/>
+          <path d="M258 75 v18 M258 81 l-11 8 M258 81 l11 8 M258 93 l-8 12 M258 93 l8 12" stroke-width="2.4"/>
+          <path d="M245 45 q-8 -11 -14 -4 M271 45 q8 -11 14 -4" stroke-width="2"/>
+        </g>
+        <g transform="rotate(6 96 72)">
+          <circle cx="96" cy="70" r="15" stroke-width="2.6"/>
+          <path d="M96 55 v30 M81 70 h30" stroke-width="1.5" opacity=".6"/>
+          <circle cx="96" cy="70" r="4" fill="#d02030" stroke="none"/>
+        </g>
+        <path d="M112 46 q40 -20 82 6" stroke="#d02030" stroke-width="2.6" opacity=".75"/>
+        <path d="M150 118 l30 -22" stroke-width="3"/>
+        <path d="M178 98 l14 -11" stroke-width="2.2" opacity=".7"/>
+        <path d="M204 60 l10 -8 M214 52 l8 -7" stroke-width="2" opacity=".55"/>
+      </g>
+    </svg>`;
+  }
+  return `<svg viewBox="0 0 320 180" aria-hidden="true">
+    <g fill="none" stroke="#1a30c0" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="160" cy="88" r="34" stroke-width="3"/>
+      <path d="M160 34 v18 M160 124 v18 M106 88 h18 M196 88 h18" stroke-width="2.2" opacity=".6"/>
+      <circle cx="160" cy="88" r="6" fill="#d02030" stroke="none"/>
+    </g>
+  </svg>`;
+}
+
+const grid = document.getElementById('grid');
+
+grid.innerHTML = GAMES.map((g, i) => `
+  <a class="card" href="${g.href}" style="animation-delay:${i * 70}ms" aria-label="${g.title}">
+    <div class="thumb">${art(g.art)}</div>
+    <div class="body">
+      <div class="name"><h2>${g.title}</h2><span>${g.en || ''}</span></div>
+      <div class="tags">${(g.tags || []).map(t => `<span class="tag">${t}</span>`).join('')}</div>
+      <p class="desc">${g.desc}</p>
+      <div class="go">开始游戏 <span class="arrow">→</span></div>
+    </div>
+  </a>`).join('') + `
+  <div class="card ghost" style="animation-delay:${GAMES.length * 70}ms">
+    <div class="thumb">
+      <svg viewBox="0 0 320 180" aria-hidden="true">
+        <g fill="none" stroke="#1a30c0" stroke-linecap="round" stroke-linejoin="round" opacity=".55">
+          <path d="M160 66 v44 M138 88 h44" stroke-width="3"/>
+          <circle cx="160" cy="88" r="42" stroke-width="2" stroke-dasharray="6 9"/>
+        </g>
+      </svg>
+    </div>
+    <div class="body">
+      <div class="name"><h2>下一款游戏</h2></div>
+      <p class="desc">还在作业本的下一页画着，很快见。</p>
+    </div>
+  </div>`;
+
+document.getElementById('count').textContent = `已收录 ${GAMES.length} 款游戏`;
+</script>
+</body>
+</html>
