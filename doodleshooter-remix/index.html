@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Doodle District · Remix</title>
+<link rel="icon" href="data:,">
+<meta name="description" content="Doodle District Remix: 13 maps, 11 guns, a katana and grappling. Survive solo or play online with friends. Original game by iifor/doodleshooter.">
+<link rel="stylesheet" href="./style.css">
+<script type="importmap">
+{ "imports": {
+  "three": "./vendor/three/three.module.js",
+  "three/addons/": "./vendor/three/addons/"
+} }
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud"></div>
+<script src="./vendor/peerjs/peerjs.min.js"></script>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
