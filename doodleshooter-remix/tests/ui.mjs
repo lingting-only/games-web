@@ -21,8 +21,8 @@ const cardStyle = (page, selector) => page.locator(selector).evaluate(el => {
 try {
   const host = await open('tr-TR');
   check('page identity and main menu render', (await host.title()).includes('Doodle District') && await host.locator('#soloBtn').isVisible());
-  check('fresh Turkish browser still defaults to English', await host.locator('html').getAttribute('lang') === 'en' && (await host.locator('#soloBtn').innerText()).startsWith('PLAY'));
-  check('controls and maps are English', (await host.locator('.controls summary').innerText()).startsWith('Controls') && (await host.locator('[data-map="forest"] strong').innerText()) === 'Pine Valley');
+  check('fresh browser defaults to Chinese', await host.locator('html').getAttribute('lang') === 'zh' && (await host.locator('#soloBtn').innerText()).startsWith('开始游戏'));
+  check('controls and maps are Chinese', (await host.locator('.controls summary').innerText()).startsWith('操作') && (await host.locator('[data-map="forest"] strong').innerText()) === '松林山谷');
   await host.locator('[data-map="dust2"]').click();
   await host.locator('#setLanguage').selectOption('tr'); await host.waitForFunction(() => document.documentElement.lang === 'tr' && !!window.__game);
   check('Turkish selection translates menu and map labels', (await host.locator('#soloBtn').innerText()).startsWith('OYNA') && (await host.locator('[data-map="forest"] strong').innerText()) === 'Çamlık Vadi');

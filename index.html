@@ -248,10 +248,38 @@ const GAMES = [
     tags: ['第一人称射击', '3D', '单人 / 联机'],
     href: './doodleshooter/',
     art: 'shooter'
+  },
+  {
+    title: '涂鸦街区 Remix',
+    en: 'Doodle District Remix',
+    desc: '社区 Remix 版本：13 张地图、11 种枪外加一把武士刀。单人闯波次，或联机最多 25 人自由对战 / 团队竞技，钩爪荡索穿行天际。',
+    tags: ['第一人称射击', '3D', '单人 / 联机', '最多 25 人'],
+    href: './doodleshooter-remix/',
+    art: 'shooter-remix'
   }
 ];
 
 function art(name) {
+  if (name === 'shooter-remix') {
+    return `<svg viewBox="0 0 320 180" aria-hidden="true">
+      <g fill="none" stroke="#1a30c0" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M-4 156 L60 156 L74 122 L132 122 L146 156 L204 156" stroke-width="2.5" opacity=".45"/>
+        <path d="M196 156 L236 156 L250 118 L306 118 L324 156" stroke-width="2.5" opacity=".45"/>
+        <path d="M250 118 L278 100 L306 118" stroke-width="2.2" opacity=".5"/>
+        <path d="M118 142 q20 -12 40 0" stroke-width="2" opacity=".4"/>
+        <path d="M30 92 l14 -7 M38 105 l14 -7" stroke-width="1.8" opacity=".45"/>
+        <g transform="rotate(-5 96 74)">
+          <circle cx="96" cy="66" r="14" stroke-width="2.6"/>
+          <path d="M96 80 v18 M96 86 l-11 8 M96 86 l11 8" stroke-width="2.4"/>
+          <path d="M108 52 l26 -16" stroke="#d02030" stroke-width="3"/>
+          <path d="M104 56 l-4 8" stroke-width="2.2"/>
+        </g>
+        <path d="M42 40 q46 -26 108 2 q-54 -6 -108 -2 Z" stroke-width="2.2" opacity=".7"/>
+        <path d="M128 44 l34 22" stroke-width="2" stroke-dasharray="5 6" opacity=".6"/>
+        <path d="M258 78 l8 -6 M268 70 l8 -6" stroke-width="2" opacity=".55"/>
+      </g>
+    </svg>`;
+  }
   if (name === 'shooter') {
     return `<svg viewBox="0 0 320 180" aria-hidden="true">
       <g fill="none" stroke="#1a30c0" stroke-linecap="round" stroke-linejoin="round">

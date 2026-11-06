@@ -97,7 +97,7 @@ try {
   check('player name escaped inside kick row', (await host.locator('.moderation-row').innerText().then(s => s.includes('Guest <safe>'))) && (await host.locator('.moderation-row safe').count()) === 0);
   await host.locator('#katanaRule').uncheck();
   await guest.waitForFunction(() => __game.lobby.katana === false);
-  check('host rule broadcasts to guest', await guest.locator('#moderation').innerText().then(s => s.includes('Katana disabled')));
+  check('host rule broadcasts to guest', await guest.locator('#moderation').innerText().then(s => s.includes('武士刀已关闭')));
   if (process.env.QA_OUTPUT) await host.screenshot({
     path: resolve(process.env.QA_OUTPUT, 'host-lobby-moderation.png')
   });
@@ -329,7 +329,7 @@ try {
   // The host leaving must not promote an untrusted peer into the combat authority.
   await host.evaluate(() => __game.leaveOnline(''));
   await rival.waitForFunction(() => !__game.net.active && __game.game.state === 'start');
-  check('host departure ends the room instead of transferring trust', await rival.locator('#panel').innerText().then(t => t.includes('The host left')));
+  check('host departure ends the room instead of transferring trust', await rival.locator('#panel').innerText().then(t => t.includes('房主已离开')));
   check('no browser runtime errors: ' + errors.join('; '), errors.length === 0);
   console.log(count + ' hostile-client and moderation checks passed');
 } finally {

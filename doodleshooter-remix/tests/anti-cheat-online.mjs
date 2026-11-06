@@ -87,7 +87,7 @@ try {
   check('host retains detailed evidence after removal', await host.evaluate(id => {
     const e = __game.antiCheat.evidence(id); return e && e.protocol['forged-life'] >= 3 && e.strikes >= 3;
   }, guestId));
-  check('kicked guest receives only the generic anti-cheat message', await guest.waitForFunction(() => document.body.innerText.includes('Removed from match: anti-cheat violation'), null, { timeout: 10000 }).then(() => true));
+  check('kicked guest receives only the generic anti-cheat message', await guest.waitForFunction(() => document.body.innerText.includes('已被移出对局：违反反作弊规则'), null, { timeout: 10000 }).then(() => true));
 
   const rejoin = await guest.evaluate(async code => {
     try { await __game.net.join(code, { name: 'new identity name' }); return { ok: true, error: '' }; }

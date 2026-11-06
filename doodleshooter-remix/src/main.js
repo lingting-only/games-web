@@ -1252,7 +1252,7 @@ function wireAppearance() {
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 
 function mainHTML() {
-  const languagePicker = `<label class="language-picker" id="languagePicker">Language / Dil <select id="setLanguage" aria-label="Language / Dil"><option value="en" ${language === 'en' ? 'selected' : ''}>English</option><option value="tr" ${language === 'tr' ? 'selected' : ''}>Türkçe</option></select></label>`;
+  const languagePicker = `<label class="language-picker" id="languagePicker">Language / Dil / 语言 <select id="setLanguage" aria-label="Language / Dil / 语言"><option value="zh" ${language === 'zh' ? 'selected' : ''}>中文</option><option value="en" ${language === 'en' ? 'selected' : ''}>English</option><option value="tr" ${language === 'tr' ? 'selected' : ''}>Türkçe</option></select></label>`;
   return languagePicker + ui`<h1>Doodle District</h1><h2>REMIX · Ink, movement and survival</h2>
     <section class="credits" aria-label="Original game and creator">
       <p>Original game: <strong>DoodleShooter · iifor</strong><br>A community remix of DoodleShooter. Thanks to the original creator and contributors!</p>

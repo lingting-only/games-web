@@ -48,7 +48,7 @@ try {
  check('X arrives after accepted damage',true);
  await host.evaluate(()=>__game.net.on('combat-hit',damageHandler));
  await host.evaluate(id=>__game.combat.players.get(id).protectedUntil=performance.now()/1000+5,guestId);const protectedHp=await guest.evaluate(()=>__game.player.hp);
- await shot(host,guestId);await host.waitForFunction(()=>document.querySelector('#tip').textContent==='Spawn protected');
+ await shot(host,guestId);await host.waitForFunction(()=>document.querySelector('#tip').textContent==='出生保护');
  check('protected target loses no health and causes no X',await guest.evaluate(hp=>__game.player.hp===hp,protectedHp)&&await host.evaluate(()=>hitCalls.length===1));
  await host.evaluate(id=>__game.combat.players.get(id).protectedUntil=0,guestId);
  await shot(rival,guestId);await rival.waitForFunction(()=>hitCalls.length===1);check('guest-to-guest hit acknowledgement relays through host',true);
