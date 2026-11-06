@@ -256,10 +256,42 @@ const GAMES = [
     tags: ['第一人称射击', '3D', '单人 / 联机', '最多 25 人'],
     href: './doodleshooter-remix/',
     art: 'shooter-remix'
+  },
+  {
+    title: '涂鸦坦克',
+    en: 'Doodle Tank',
+    desc: '画在作业本上的 90 坦克：守住手绘老鹰基地，画掉每一辆敌军坦克。砖墙钢墙河流冰面，六种经典道具，单人闯 10 关或联机双人合作守家。',
+    tags: ['坦克大战', '俯视', '单人 / 联机'],
+    href: './doodletank/',
+    art: 'tank'
   }
 ];
 
 function art(name) {
+  if (name === 'tank') {
+    return `<svg viewBox="0 0 320 180" aria-hidden="true">
+      <g fill="none" stroke="#1a30c0" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M118 132 h96 M118 132 v-26 h96 v26 M112 106 h108" stroke-width="2.6"/>
+        <rect x="126" y="84" width="80" height="26" rx="4" stroke-width="2.6"/>
+        <path d="M166 84 v-16 M160 68 h20" stroke-width="3.2"/>
+        <circle cx="140" cy="132" r="7" stroke-width="2"/>
+        <circle cx="166" cy="132" r="7" stroke-width="2"/>
+        <circle cx="192" cy="132" r="7" stroke-width="2"/>
+        <path d="M40 44 q14 -8 28 0 M46 56 q12 -6 24 0" stroke-width="2" opacity=".5"/>
+        <g stroke="#d02030" stroke-width="2.6">
+          <path d="M186 60 l38 -22"/>
+          <path d="M224 30 l12 -4 M228 40 l10 -8" opacity=".7"/>
+        </g>
+        <g transform="rotate(-8 62 96)">
+          <rect x="48" y="86" width="28" height="20" rx="3" stroke-width="2.4"/>
+          <path d="M62 86 v-10 M58 76 h12" stroke-width="2.4"/>
+          <path d="M50 106 h24" stroke-width="2" opacity=".6"/>
+        </g>
+        <path d="M258 120 l10 -6 M268 112 l10 -6 M248 132 l10 -6" stroke-width="2" opacity=".5"/>
+        <path d="M36 140 q22 8 44 0" stroke-width="2" opacity=".4"/>
+      </g>
+    </svg>`;
+  }
   if (name === 'shooter-remix') {
     return `<svg viewBox="0 0 320 180" aria-hidden="true">
       <g fill="none" stroke="#1a30c0" stroke-linecap="round" stroke-linejoin="round">
