@@ -4,9 +4,9 @@
 // state streaming, DOM HUD over an ink-drawn three.js board.
 import * as THREE from 'three';
 import { InkRenderer, INK } from './render.js';
-import { Grid, T, DIRS, BOARD_MIN, cellCenter } from './physics.js';
+import { Grid, T, DIRS, BOARD_MIN, cellCenter, HALF_N, BIG, CELL } from './physics.js';
 import { Input } from './input.js';
-import { buildLevel, SPAWNS, MAP_COUNT } from './level.js';
+import { buildLevel, SPAWNS, MAP_COUNT, EAGLE_CELL } from './level.js';
 import { EnemyManager } from './enemies.js';
 import { BulletManager } from './bullets.js';
 import { PowerupManager } from './powerups.js';
@@ -17,11 +17,11 @@ import { Net } from './net.js';
 import { HUD } from './hud.js';
 import { Audio } from './audio.js';
 import { appearanceFor, saveAppearance } from './appearance.js';
-import { clamp } from './util.js';
+import { clamp, rand } from './util.js';
 
 const canvas = document.getElementById('c');
 const R = new InkRenderer(canvas);
-R.frame(13);
+R.frame(BIG * CELL / 2);
 const grid = new Grid();
 const input = new Input(canvas);
 const hud = new HUD(document.getElementById('hud'));
@@ -37,7 +37,7 @@ localStorage.setItem('tank_name', myName);
 
 // the base's brick ring (half-cells), used by the shovel power-up
 const RING_CELLS = [];
-for (const c of [{ cx: 5, cy: 11 }, { cx: 6, cy: 11 }, { cx: 7, cy: 11 }, { cx: 5, cy: 12 }, { cx: 7, cy: 12 }]) {
+for (const c of [{ cx: 6, cy: 13 }, { cx: 7, cy: 13 }, { cx: 8, cy: 13 }, { cx: 6, cy: 14 }, { cx: 8, cy: 14 }]) {
   for (let dz = 0; dz < 2; dz++) for (let dx = 0; dx < 2; dx++) RING_CELLS.push({ hx: c.cx * 2 + dx, hz: c.cy * 2 + dz });
 }
 
@@ -77,12 +77,13 @@ function loadStage(n) {
   enemies.cb.onKill = onEnemyKill;
   enemies.beginStage(n);
   game.eagleAlive = true;
-  clientLeft = 20;
+  clientLeft = 22;
   me.spawnCell = SPAWNS.players[game.mode === 'client' ? 1 : 0];
   me.spawn();
   if (remote) {
     const c = SPAWNS.players[1];
-    remote.tank.x = -13 + c.cx * 2 + 1; remote.tank.z = -13 + c.cy * 2 + 1;
+    const rc = cellCenter(c.cx, c.cy);
+    remote.tank.x = rc.x; remote.tank.z = rc.z;
     remote.tank.dir = 'up'; remote.alive = true; remote.tank.alive = true; remote.tank.group.visible = true;
   }
   hud.hideAll();
@@ -128,6 +129,20 @@ function backToMenu(msg) {
   audio.setTune('march');
 }
 
+// ---------------- floating score popups ----------------
+// a little ink note that floats up where something happened (+100, 道具名…)
+function popup(x, z, text) {
+  const v = new THREE.Vector3(x, 1.2, z).project(R.camera);
+  if (v.z > 1) return;
+  const el = document.createElement('div');
+  el.className = 'score-pop';
+  el.textContent = text;
+  el.style.left = ((v.x * 0.5 + 0.5) * innerWidth) + 'px';
+  el.style.top = ((-v.y * 0.5 + 0.5) * innerHeight) + 'px';
+  hud.root.appendChild(el);
+  setTimeout(() => el.remove(), 900);
+}
+
 // ---------------- scoring / events ----------------
 function addScore(pts, who) {
   if (who === 'remote' && remote) remote.score += pts;
@@ -145,8 +160,8 @@ function onEnemyKill(enemy, byLocal) {
   const pts = { basic: 100, fast: 200, power: 300, armor: 400 }[enemy.kind] || 100;
   addScore(pts, byLocal === 'remote' ? 'remote' : 'me');
   audio.explode();
-  R.shakeKick(0.12);
-  hud.tip(pts + ' 分', 700);
+  R.shakeKick(0.18);
+  popup(enemy.x, enemy.z, '+' + pts);
   // a flashing carrier drops a power-up where it died
   if (enemy.carrier && isAuth()) powerups.spawn();
   pushTally();
@@ -172,8 +187,12 @@ function baseDestroyed(byLocal) {
   game.eagleAlive = false;
   const e = level.eagle;
   if (e) { e.rotation.z = 0.5; e.scale.set(1, 0.4, 1); e.position.y = 0.1; }
-  effects.explosion(0, 11, true);
-  effects.scorch(0, 11, 2.6);
+  const ec = cellCenter(EAGLE_CELL.cx, EAGLE_CELL.cy);
+  // the base goes out with a rolling chain of blasts
+  for (let i = 0; i < 5; i++) {
+    effects.schedule(i * 0.15, () => effects.explosion(ec.x + rand(-3, 3), ec.z + rand(-2.5, 1.5), true));
+  }
+  effects.scorch(ec.x, ec.z, 2.8);
   audio.explode(true);
   R.shakeKick(0.5);
   saveBest();
@@ -210,10 +229,11 @@ function pushTally() {
 function stageCleared() {
   if (game.phase !== 'play') return;
   saveBest();
-  setPhase('clear', 2.8);
+  setPhase('clear', 3.2);
   audio.setTune(null);
   audio.clear();
-  hud.banner('关卡完成！', '准备下一关…', 2400);
+  effects.fireworks(9);
+  hud.banner('关卡完成！', '准备下一关…', 2800);
 }
 function nextStage() {
   const n = game.stage + 1;
@@ -222,12 +242,13 @@ function nextStage() {
 
 // ---------------- firing ----------------
 // called by players and enemies; the shooter simulates their own shells and reports hits
-function fireBullet(tank, speed) {
+function fireBullet(tank, speed, ox = 0, oz = 0) {
   if (!tank || !tank.alive) return false;
   const d = DIRS[tank.dir];
-  const x = tank.x + d.x * 1.35, z = tank.z + d.z * 1.35;
+  const x = tank.x + d.x * 1.35 + ox, z = tank.z + d.z * 1.35 + oz;
   if (grid.bulletStep(x, z)) { /* muzzle inside a wall: still fire, it dies instantly */ }
-  bullets.spawn({ x, z, dir: tank.dir, power: tank.bulletPower ?? 1, owner: tank, fromEnemy: tank.isEnemy, speed });
+  const pierce = !tank.isEnemy && me && tank === me.tank && me.pierceT > 0;
+  bullets.spawn({ x, z, dir: tank.dir, power: tank.bulletPower ?? 1, owner: tank, fromEnemy: tank.isEnemy, speed, pierce });
   effects.strokeBurst(x, z, INK.ORANGE, 4, 2.6, { y: 1.0, life: 0.16, size: 0.65 });
   audio.fire();
   return true;
@@ -287,17 +308,30 @@ const bulletCbs = {
 };
 
 // ---------------- power-up effects ----------------
+// 铁锹：基地砖环变钢墙。有坦克正停着的格子跳过，绝不把车砌进墙里。
+function fortifyBaseRing() {
+  const bodies = [me && me.alive && me.tank, remote && remote.alive && remote.tank, ...enemies.list].filter(Boolean);
+  const cells = RING_CELLS.filter((c) => {
+    const w = grid.cellCenterW(c.hx, c.hz);
+    return !bodies.some((t) => Math.abs(t.x - w.x) < 1.4 && Math.abs(t.z - w.z) < 1.4);
+  });
+  powerups.fortifyBase(cells, (hx, hz) => grid.set(hx, hz, T.STEEL));
+}
 function applyPowerup(p, mine) {
   audio.pickup();
-  const names = { star: '星星升级！', grenade: '手雷！全灭敌军！', helmet: '头盔！无敌护罩', shovel: '铁锹！基地加固', tank: '额外生命！', timer: '时钟！敌军冻结' };
+  const names = { star: '星星升级！', grenade: '手雷！全灭敌军！', helmet: '头盔！无敌护罩', shovel: '铁锹！基地加固', tank: '额外生命！', timer: '时钟！敌军冻结', rapid: '速射！', spread: '散射三连！', pierce: '穿甲弹！' };
   hud.tip(names[p.kind] || p.kind, 1500);
   effects.ring(p.x, p.z, INK.ORANGE, 2.4, 0.4);
+  popup(p.x, p.z, names[p.kind] || p.kind);
   if (p.kind === 'star') mine.addStar();
   else if (p.kind === 'helmet') mine.tank && (mine.tank.shield = 8);
-  else if (p.kind === 'tank') mine.addLife(), audio.life();
+  else if (p.kind === 'tank') { mine.addLife(); audio.life(); }
+  else if (p.kind === 'rapid') mine.rapidT = 10;
+  else if (p.kind === 'spread') mine.spreadT = 12;
+  else if (p.kind === 'pierce') mine.pierceT = 10;
   else if (isAuth()) {
     if (p.kind === 'grenade') { enemies.killAll('powerup'); }
-    else if (p.kind === 'shovel') { powerups.fortifyBase(RING_CELLS, (hx, hz) => grid.set(hx, hz, T.STEEL)); }
+    else if (p.kind === 'shovel') { fortifyBaseRing(); }
     else if (p.kind === 'timer') { enemies.frozen = 8; }
   } else {
     if (p.kind === 'grenade') net.sendTo(net.hostId, 'grenade', {});
@@ -308,7 +342,7 @@ function applyPowerup(p, mine) {
 
 // ---------------- networking ----------------
 const lobbyNames = new Map();   // peerId -> name
-let clientLeft = 20;
+let clientLeft = 22;
 hud.on('rename', () => location.reload());
 hud.on('style', (mode) => { if (saveAppearance(mode)) R.setAppearance(mode); });
 
@@ -344,7 +378,7 @@ net.on('tile', (d) => {
 });
 net.on('basehit', () => { if (isAuth()) baseDestroyed('them'); });
 net.on('grenade', () => { if (isAuth()) enemies.killAll('powerup'); });
-net.on('shovel', () => { if (isAuth()) powerups.fortifyBase(RING_CELLS, (hx, hz) => grid.set(hx, hz, T.STEEL)); });
+net.on('shovel', () => { if (isAuth()) fortifyBaseRing(); });
 net.on('timer', () => { if (isAuth()) enemies.frozen = 8; });
 net.on('pickup', (d) => {
   if (!isAuth()) return;
@@ -377,13 +411,13 @@ net.on('snap', (d) => {
   powerups.applySnap(R.scene, d.pw || []);
   // tiles stream
   if (d.ti) for (let i = 0; i < d.ti.length && i < grid.tiles.length; i++) {
-    if (grid.tiles[i] !== d.ti[i]) grid.set(i % 26, Math.floor(i / 26), d.ti[i]);
+    if (grid.tiles[i] !== d.ti[i]) grid.set(i % HALF_N, Math.floor(i / HALF_N), d.ti[i]);
   }
   if (d.sc) {
     if (remote && d.sc.me) remote.applyScore({ score: d.sc.me.score, lives: d.sc.me.lives });
     if (me && d.sc.them) me.score = d.sc.them.score;
   }
-  if (d.eagle === 0 && game.eagleAlive) { game.eagleAlive = false; const e = level.eagle; if (e) { e.rotation.z = 0.5; e.scale.set(1, 0.4, 1); } effects.explosion(0, 11, true); }
+  if (d.eagle === 0 && game.eagleAlive) { game.eagleAlive = false; const e = level.eagle; if (e) { e.rotation.z = 0.5; e.scale.set(1, 0.4, 1); } effects.explosion(...Object.values(cellCenter(EAGLE_CELL.cx, EAGLE_CELL.cy)), true); }
   pushTally();
 });
 

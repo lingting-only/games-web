@@ -3,7 +3,7 @@
 // and floating brick crumbs. Everything is generated in code, nothing is a texture.
 import * as THREE from 'three';
 import { makeInkMaterial, INK } from './render.js';
-import { rand } from './util.js';
+import { rand, choose } from './util.js';
 
 export class Effects {
   constructor(scene) {
@@ -12,6 +12,7 @@ export class Effects {
     this.marks = [];     // scorch decals that fade
     this.rings = [];     // blast rings
     this.stars = [];     // spawn scribbles
+    this.scheduled = []; // delayed bursts (second rings, fireworks)
     this.crumbGeo = new THREE.BoxGeometry(0.16, 0.1, 0.16);
     this.mats = new Map();
     this.time = 0;
@@ -22,7 +23,10 @@ export class Effects {
     for (const r of this.rings) this.scene.remove(r.mesh);
     for (const s of this.stars) this.scene.remove(s.mesh);
     this.parts.length = this.marks.length = this.rings.length = this.stars.length = 0;
+    this.scheduled.length = 0;
   }
+  // run fn after t seconds of effect time (survives tab-throttling better than setTimeout)
+  schedule(t, fn) { this.scheduled.push({ t: this.time + t, fn }); }
   mat(ink) {
     if (!this.mats.has(ink)) this.mats.set(ink, makeInkMaterial({ ink, shadeScale: 0.3 }));
     return this.mats.get(ink);
@@ -58,10 +62,24 @@ export class Effects {
     this.rings.push({ mesh, t: 0, life, size });
   }
   explosion(x, z, big = false) {
-    this.strokeBurst(x, z, INK.RED, big ? 22 : 13, big ? 6.5 : 4.5, { y: 0.6, life: 0.55, size: big ? 1.5 : 1.1 });
-    this.strokeBurst(x, z, INK.ORANGE, big ? 12 : 7, big ? 5 : 3.4, { y: 0.8, life: 0.4, size: 0.9 });
-    this.ring(x, z, INK.RED, big ? 3.2 : 2.0, 0.38);
-    this.scorch(x, z, big ? 2.1 : 1.4);
+    this.strokeBurst(x, z, INK.RED, big ? 34 : 18, big ? 7.5 : 5, { y: 0.6, life: 0.6, size: big ? 1.7 : 1.2 });
+    this.strokeBurst(x, z, INK.ORANGE, big ? 16 : 9, big ? 5.5 : 3.6, { y: 0.8, life: 0.45, size: 1.0 });
+    this.ring(x, z, INK.RED, big ? 3.6 : 2.2, 0.4);
+    // delayed second shockwave gives the blast a "thump"
+    this.schedule(big ? 0.13 : 0.09, () => this.ring(x, z, INK.ORANGE, big ? 2.8 : 1.7, 0.32));
+    this.scorch(x, z, big ? 2.3 : 1.5);
+    if (big) this.strokeBurst(x, z, INK.BLACK, 10, 4.2, { y: 1.1, life: 0.85, size: 0.95 });   // smoke
+  }
+  // a celebratory ink-firework scatter over the board (stage clear)
+  fireworks(n = 8) {
+    for (let i = 0; i < n; i++) {
+      this.schedule(i * 0.22, () => {
+        const x = rand(-13, 13), z = rand(-13, 11);
+        const ink = choose([INK.RED, INK.ORANGE, INK.GREEN, INK.PINK, INK.BLUE]);
+        this.strokeBurst(x, z, ink, 22, 6.5, { y: 1.3, life: 0.75, size: 1.4 });
+        this.ring(x, z, ink, 3.2, 0.5);
+      });
+    }
   }
   // the scribbled star that doodles a tank into existence at a spawn point
   spawnStar(x, z, dur = 0.9) {
@@ -72,6 +90,13 @@ export class Effects {
   }
   update(dt) {
     this.time += dt;
+    for (const s of [...this.scheduled]) {
+      if (this.time >= s.t) {
+        s.fn();
+        const i = this.scheduled.indexOf(s);
+        if (i >= 0) this.scheduled.splice(i, 1);
+      }
+    }
     const dead = (arr) => { const out = []; for (const p of arr) { p.t += dt; if (p.t >= p.life) { this.scene.remove(p.mesh); p.mesh.geometry.dispose(); } else out.push(p); } return out; };
     for (const p of this.parts) {
       p.vy -= 9.5 * dt;

@@ -130,21 +130,23 @@ export class Tank {
     if (grid) {
       const onIce = grid.tileAt(nx, nz) === T.ICE;
       if (onIce && this.moving) this.slide = Math.min(this.speed, this.slide + dt * 10); else this.slide = 0;
-      if (!grid.rectBlocked(nx, nz, this.hw)) { this.x = nx; this.z = nz; moved = true; }
-      else {
-        // slide along the wall: keep the cross-axis motion if it is free
-        if (d.x !== 0 && !grid.rectBlocked(nx, this.z, this.hw)) { this.x = nx; moved = true; }
-        else if (d.z !== 0 && !grid.rectBlocked(this.x, nz, this.hw)) { this.z = nz; moved = true; }
-        else this.slide = 0;
-      }
-      // tank bodies don't overlap
+      // escape mode: a tank that somehow ended up inside a wall may move any way that strictly
+      // reduces how much wall it overlaps (by area), so it can always wriggle back out
+      const stuck = grid.overlapArea(this.x, this.z, this.hw * 0.95) > 0;
+      const freer = (x, z) => grid.overlapArea(x, z, this.hw) < grid.overlapArea(this.x, this.z, this.hw) - 1e-6;
+      if (!grid.rectBlocked(nx, nz, this.hw) || (stuck && freer(nx, nz))) { this.x = nx; this.z = nz; moved = true; }
+      else if (d.x !== 0 && (!grid.rectBlocked(nx, this.z, this.hw) || (stuck && freer(nx, this.z)))) { this.x = nx; moved = true; }
+      else if (d.z !== 0 && (!grid.rectBlocked(this.x, nz, this.hw) || (stuck && freer(this.x, nz)))) { this.z = nz; moved = true; }
+      else this.slide = 0;
+      // tank bodies don't overlap — but never shove each other into a wall
       for (const t of tanks) {
         if (t === this || !t.alive) continue;
         const dx = this.x - t.x, dz = this.z - t.z;
         const ox = this.hw + t.hw - Math.abs(dx), oz = this.hw + t.hw - Math.abs(dz);
         if (ox > 0 && oz > 0) {
-          if (ox < oz) this.x += (dx > 0 ? ox : -ox); else this.z += (dz > 0 ? oz : -oz);
-          this.x = clampBoard(this.x); this.z = clampBoard(this.z);
+          const px = ox < oz ? this.x + (dx > 0 ? ox : -ox) : this.x;
+          const pz = ox < oz ? this.z : this.z + (dz > 0 ? oz : -oz);
+          if (!grid.rectBlocked(px, pz, this.hw) || freer(px, pz)) { this.x = clampBoard(px); this.z = clampBoard(pz); }
         }
       }
     } else { this.x = nx; this.z = nz; moved = true; }

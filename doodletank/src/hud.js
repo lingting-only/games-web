@@ -165,7 +165,7 @@ export class HUD {
     this.updateTally(info);
   }
   updateTally({ enemiesLeft, lives, lives2, score, coop }) {
-    const n = Math.max(0, Math.min(20, enemiesLeft));
+    const n = Math.max(0, Math.min(24, enemiesLeft));
     let icons = '';
     for (let i = 0; i < n; i++) icons += '<svg viewBox="0 0 20 20" class="tank-ico"><rect x="6" y="6" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2"/><rect x="9" y="1" width="2" height="5" fill="currentColor"/></svg>';
     this.el['t-enemies'].innerHTML = icons || '<span class="dim">场上无敌</span>';

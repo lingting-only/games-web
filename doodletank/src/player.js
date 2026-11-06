@@ -2,7 +2,7 @@
 // finger. Each player owns their own tank; in co-op the other one is a RemoteTank.
 import * as THREE from 'three';
 import { Tank } from './tank.js';
-import { DIRS } from './physics.js';
+import { DIRS, cellCenter } from './physics.js';
 
 export class Player {
   constructor(scene, opts = {}) {
@@ -12,6 +12,7 @@ export class Player {
     this.lives = opts.lives ?? 3;
     this.score = 0;
     this.stars = 0;                           // upgrade level carried between lives
+    this.rapidT = 0; this.spreadT = 0; this.pierceT = 0;   // timed power-up buffs
     this.spawnCell = opts.spawnCell;
     this.tank = null;
     this.alive = false;
@@ -24,8 +25,8 @@ export class Player {
   spawn() {
     if (this.tank) { this.tank.destroy(); this.tank = null; }
     const t = new Tank(this.scene, { ink: 0, speed: 5.6, kind: 'player', id: this.id });
-    const c = this.spawnCell;
-    t.x = -13 + c.cx * 2 + 1; t.z = -13 + c.cy * 2 + 1;
+    const c = cellCenter(this.spawnCell.cx, this.spawnCell.cy);
+    t.x = c.x; t.z = c.z;
     t.dir = 'up';
     t.star = this.stars;
     t.shield = 2.2;
@@ -54,6 +55,9 @@ export class Player {
   update(dt, time, input, bullets, effects, fireBullet, others) {
     const t = this.tank;
     if (!t || !t.alive) return;
+    this.rapidT = Math.max(0, this.rapidT - dt);
+    this.spreadT = Math.max(0, this.spreadT - dt);
+    this.pierceT = Math.max(0, this.pierceT - dt);
     const dir = input.moveDir();
     t.moving = false;
     if (dir) {
@@ -62,7 +66,7 @@ export class Player {
     }
     this._autoT = (this._autoT || 0) - dt;
     if ((input.consumeFire() || input.fireHeld) && this._autoT <= 0) {
-      if (this.tryFire(bullets, fireBullet)) this._autoT = 0.3;
+      if (this.tryFire(bullets, fireBullet)) this._autoT = this.rapidT > 0 ? 0.13 : 0.3;
     }
     t.update(dt, time);
   }
@@ -70,8 +74,19 @@ export class Player {
   tryFire(bullets, fireBullet) {
     const t = this.tank;
     if (!t || !t.alive) return false;
-    if (bullets.countOf(t) >= (this.stars >= 1 ? 2 : 1)) return false;
-    return fireBullet(t, this.stars >= 2 ? 13 : 10);
+    const speed = this.stars >= 2 ? 13 : 10;
+    const maxB = this.stars >= 1 ? 2 : 1;
+    // 散射：一次三发平行弹幕，中间一发照常，左右各偏移一发
+    if (this.spreadT > 0) {
+      if (bullets.countOf(t) >= maxB + 2) return false;
+      const d = DIRS[t.dir];
+      const ox = d.x !== 0 ? 0 : 0.7, oz = d.x !== 0 ? 0.7 : 0;
+      fireBullet(t, speed, ox, oz);
+      fireBullet(t, speed, -ox, -oz);
+      return fireBullet(t, speed);
+    }
+    if (bullets.countOf(t) >= maxB) return false;
+    return fireBullet(t, speed);
   }
 
   // a bullet reaches me

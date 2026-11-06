@@ -250,9 +250,9 @@ export class InkRenderer {
     this.resize();
     window.addEventListener('resize', () => this.resize());
   }
-  // fit the whole 26x26 board with slim margins, whatever the window shape. In landscape the
+  // fit the whole board with slim margins, whatever the window shape. In landscape the
   // view is nudged right so the board centres in the space left of the score panel.
-  frame(boardHalf = 13) {
+  frame(boardHalf = 15) {
     const s = boardHalf * 1.13;
     const a = this.camera.aspect;
     const halfH = Math.max(s, s / a), halfW = halfH * a;

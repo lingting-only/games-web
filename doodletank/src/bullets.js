@@ -3,7 +3,7 @@
 // first thing it touches. Bullet-vs-bullet: an enemy shot and a player shot cancel out.
 import * as THREE from 'three';
 import { makeInkMaterial, INK } from './render.js';
-import { DIRS, BOARD_MIN, BOARD_MAX } from './physics.js';
+import { DIRS, BOARD_MIN, BOARD_MAX, T } from './physics.js';
 
 export class BulletManager {
   constructor(scene, grid) {
@@ -19,14 +19,14 @@ export class BulletManager {
     this.scene.remove(b.mesh);
     this.scene.remove(b.trail);
   }
-  spawn({ x, z, dir, power = 1, owner = null, fromEnemy = false, speed = 10, id = null }) {
+  spawn({ x, z, dir, power = 1, owner = null, fromEnemy = false, speed = 10, id = null, pierce = false }) {
     const mesh = new THREE.Mesh(this.geo, this.mat);
     mesh.position.set(x, 0.98, z);
     this.scene.add(mesh);
     // a short ink streak trailing the shot
     const trail = new THREE.Mesh(this.trailGeo, this.mat);
     this.scene.add(trail);
-    const b = { id: id ?? this.nextId++, x, z, dir, power, owner, fromEnemy, speed, mesh, trail, alive: true };
+    const b = { id: id ?? this.nextId++, x, z, dir, power, owner, fromEnemy, speed, pierce, mesh, trail, alive: true };
     this.place(b, x, z);
     this.list.push(b);
     return b;
@@ -52,9 +52,12 @@ export class BulletManager {
         const hit = this.grid.bulletStep(px, pz);
         if (hit) {
           cb.onTile && cb.onTile(b, hit, px, pz);
-          b.alive = false;
-          cb.onImpact && cb.onImpact(b, px, pz, hit);
-          break;
+          // 穿甲弹：击碎砖墙后继续飞行（钢墙/老鹰仍然拦停）
+          if (!(b.pierce && hit.type === T.BRICK)) {
+            b.alive = false;
+            cb.onImpact && cb.onImpact(b, px, pz, hit);
+            break;
+          }
         }
         if (px < BOARD_MIN - 0.3 || px > BOARD_MAX + 0.3 || pz < BOARD_MIN - 0.3 || pz > BOARD_MAX + 0.3) {
           b.alive = false;

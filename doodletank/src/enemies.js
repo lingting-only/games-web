@@ -8,10 +8,10 @@ import { SPAWNS } from './level.js';
 import { rand, randInt, choose, clamp } from './util.js';
 
 export const ENEMY_STATS = {
-  basic: { speed: 4.4, bullet: 9,  fireCd: [0.9, 2.2], score: 100 },
-  fast:  { speed: 7.6, bullet: 9,  fireCd: [0.8, 2.0], score: 200 },
-  power: { speed: 4.6, bullet: 15, fireCd: [0.7, 1.7], score: 300 },
-  armor: { speed: 3.8, bullet: 9,  fireCd: [0.8, 1.9], score: 400 },
+  basic: { speed: 4.8, bullet: 10, fireCd: [0.8, 1.8], score: 100 },
+  fast:  { speed: 8.0, bullet: 10, fireCd: [0.7, 1.6], score: 200 },
+  power: { speed: 4.8, bullet: 16, fireCd: [0.6, 1.4], score: 300 },
+  armor: { speed: 4.0, bullet: 10, fireCd: [0.7, 1.7], score: 400 },
 };
 const ARMOR_INK = { 4: 2, 3: 4, 2: 3, 1: 2 };   // ink id per remaining hp (graphite/green/orange)
 
@@ -34,10 +34,10 @@ export class EnemyManager {
   // classic stage mix, keyed by stage number (0-based): more fast/power/armor later on
   static stageQueue(stage) {
     const q = [];
-    const armorN = clamp(2 + Math.floor(stage / 2), 2, 6);
-    const fastN = clamp(3 + Math.floor(stage / 3), 3, 7);
-    const powerN = clamp(1 + Math.floor(stage / 2), 1, 5);
-    const basicN = 20 - armorN - fastN - powerN;
+    const armorN = clamp(3 + Math.floor(stage / 2), 3, 8);
+    const fastN = clamp(4 + Math.floor(stage / 3), 4, 9);
+    const powerN = clamp(2 + Math.floor(stage / 2), 2, 6);
+    const basicN = Math.max(0, 22 - armorN - fastN - powerN);
     for (let i = 0; i < basicN; i++) q.push('basic');
     for (let i = 0; i < fastN; i++) q.push('fast');
     for (let i = 0; i < powerN; i++) q.push('power');
@@ -46,7 +46,7 @@ export class EnemyManager {
     for (let i = q.length - 1; i > 4; i--) { const j = randInt(5, i); [q[i], q[j]] = [q[j], q[i]]; }
     return q;
   }
-  beginStage(stage, carrierCount = 4) {
+  beginStage(stage, carrierCount = 6) {
     this.reset();
     this.queue = EnemyManager.stageQueue(stage);
     // some tanks in the queue carry a power-up; mark them as they spawn
@@ -61,15 +61,18 @@ export class EnemyManager {
     if (this.frozen > 0) this.frozen -= dt;
     const frozen = this.frozen > 0;
     // ---- spawning ----
-    const maxAlive = 4;
+    const maxAlive = 5;
     if (!this.pending && this.queue.length && this.list.length < maxAlive && !frozen) {
       this.spawnT -= dt;
       if (this.spawnT <= 0) {
         const cell = SPAWNS.enemies[this.spawnPoint % 3];
         this.spawnPoint++;
-        // a spawn door blocked by a body just waits (classic behaviour)
+        // a spawn door blocked by any body — player or fellow tank — or by terrain just waits
         const c = cellCenter(cell.cx, cell.cy);
-        if (players.some((p) => p.alive && Math.abs(p.x - c.x) < 1.6 && Math.abs(p.z - c.z) < 1.6)) {
+        const blocked = (players.some((p) => p.alive && Math.abs(p.x - c.x) < 1.6 && Math.abs(p.z - c.z) < 1.6)
+          || this.list.some((e) => Math.abs(e.x - c.x) < 1.6 && Math.abs(e.z - c.z) < 1.6))
+          || this.grid.rectBlocked(c.x, c.z, 0.85);
+        if (blocked) {
           this.spawnT = 0.4;
         } else {
           const kind = this.queue.shift();
@@ -77,7 +80,7 @@ export class EnemyManager {
           if (carrier) this.carriersLeft--;
           this.pending = { x: c.x, z: c.z, t: this.rush ? 0.7 : 1.0, kind, carrier };
           this.effects.spawnStar(c.x, c.z, this.pending.t);
-          this.spawnT = this.rush ? rand(0.9, 1.6) : rand(1.4, 2.6);
+          this.spawnT = this.rush ? rand(0.7, 1.3) : rand(1.1, 2.2);
         }
       }
     }
@@ -115,7 +118,7 @@ export class EnemyManager {
       e.fireT -= dt;
       if (e.fireT <= 0) {
         e.fireT = rand(stats.fireCd[0], stats.fireCd[1]);
-        let want = Math.random() < 0.72;
+        let want = Math.random() < 0.8;
         for (const p of players) {
           if (!p.alive) continue;
           const dx = p.x - e.x, dz = p.z - e.z;
@@ -130,7 +133,7 @@ export class EnemyManager {
   }
   pickDir(e, players) {
     // weighted pick: down (toward the base) leads, then toward the nearest player, then random
-    const weights = { down: 4, up: 1, left: 2, right: 2 };
+    const weights = { down: 5, up: 1, left: 2, right: 2 };
     let target = null, best = 1e9;
     for (const p of players) {
       if (!p.alive) continue;
@@ -138,8 +141,8 @@ export class EnemyManager {
       if (d < best) { best = d; target = p; }
     }
     if (target) {
-      if (Math.abs(target.x - e.x) > Math.abs(target.z - e.z)) weights[target.x > e.x ? 'right' : 'left'] += 3;
-      else weights[target.z > e.z ? 'down' : 'up'] += 3;
+      if (Math.abs(target.x - e.x) > Math.abs(target.z - e.z)) weights[target.x > e.x ? 'right' : 'left'] += 4;
+      else weights[target.z > e.z ? 'down' : 'up'] += 4;
     }
     const total = weights.down + weights.up + weights.left + weights.right;
     let r = rand(0, total);

@@ -6,8 +6,8 @@ import { makeInkMaterial, INK } from './render.js';
 import { T, BOARD_MIN, HALF_N } from './physics.js';
 import { rand } from './util.js';
 
-export const POWERS = ['star', 'grenade', 'helmet', 'shovel', 'tank', 'timer'];
-const LIFE = 12;
+export const POWERS = ['star', 'grenade', 'helmet', 'shovel', 'tank', 'timer', 'rapid', 'spread', 'pierce'];
+const LIFE = 14;
 
 function buildMesh(kind) {
   const g = new THREE.Group();
@@ -45,6 +45,22 @@ function buildMesh(kind) {
     case 'timer': {
       add(new THREE.CylinderGeometry(0.45, 0.45, 0.16, 14), mat, 0, 0.55, 0, Math.PI / 2);
       add(new THREE.BoxGeometry(0.08, 0.3, 0.06), dark, 0, 0.55, 0.1, 0, 0, 0.6);
+      break;
+    }
+    case 'rapid': {   // 闪电：速射
+      add(new THREE.BoxGeometry(0.5, 0.16, 0.16), mat, -0.12, 0.5, 0, 0, 0.4, 0);
+      add(new THREE.BoxGeometry(0.5, 0.16, 0.16), mat, 0.12, 0.66, 0, 0, 0, -0.4);
+      break;
+    }
+    case 'spread': {  // 三道散射弹幕
+      add(new THREE.BoxGeometry(0.7, 0.15, 0.13), mat, 0, 0.42, -0.22, 0, 0.5, 0);
+      add(new THREE.BoxGeometry(0.85, 0.15, 0.13), mat, 0, 0.45, 0);
+      add(new THREE.BoxGeometry(0.7, 0.15, 0.13), mat, 0, 0.42, 0.22, 0, -0.5, 0);
+      break;
+    }
+    case 'pierce': {  // 穿甲箭头
+      add(new THREE.BoxGeometry(0.14, 0.14, 0.9), dark, 0, 0.5, 0.1);
+      add(new THREE.BoxGeometry(0.42, 0.16, 0.32), mat, 0, 0.5, -0.4);
       break;
     }
   }

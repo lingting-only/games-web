@@ -302,6 +302,25 @@ body {
   animation: settle .25s ease-out both;
 }
 
+/* floating score / pickup notes over the board */
+.score-pop {
+  position: absolute;
+  transform: translate(-50%, -50%) rotate(-2deg);
+  font-size: 21px;
+  font-weight: bold;
+  color: var(--red);
+  text-shadow: 2px 2px 0 rgba(255, 255, 255, .75);
+  pointer-events: none;
+  white-space: nowrap;
+  animation: popfloat .9s ease-out forwards;
+}
+@keyframes popfloat {
+  0% { opacity: 0; margin-top: 6px; scale: .6; }
+  18% { opacity: 1; scale: 1.15; }
+  40% { scale: 1; }
+  100% { opacity: 0; margin-top: -52px; scale: .95; }
+}
+
 /* ---------- game over ---------- */
 .over-reason { font-size: 16px; opacity: .8; margin-bottom: 14px; }
 .score-table { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
