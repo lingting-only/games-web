@@ -3,7 +3,7 @@
 // up (or until it fades). Grenade/shovel/timer affect the whole board; star/helmet/tank the taker.
 import * as THREE from 'three';
 import { makeInkMaterial, INK } from './render.js';
-import { T, BOARD_MIN, HALF_N } from './physics.js';
+import { T, BOARD_MIN, BOARD_MIN_Z, HALF_N, HALF_N_Z } from './physics.js';
 import { rand } from './util.js';
 
 export const POWERS = ['star', 'grenade', 'helmet', 'shovel', 'tank', 'timer', 'rapid', 'spread', 'pierce'];
@@ -89,9 +89,9 @@ export class PowerupManager {
     let x = at?.x, z = at?.z;
     if (x === undefined) {
       for (let tries = 0; tries < 40; tries++) {
-        const hx = Math.floor(rand(1, HALF_N - 1)), hz = Math.floor(rand(1, HALF_N - 3));
+        const hx = Math.floor(rand(1, HALF_N - 1)), hz = Math.floor(rand(1, HALF_N_Z - 3));
         const t = this.grid.get(hx, hz);
-        if (t === T.EMPTY || t === T.TREE || t === T.ICE) { x = BOARD_MIN + hx + 0.5; z = BOARD_MIN + hz + 0.5; break; }
+        if (t === T.EMPTY || t === T.TREE || t === T.ICE) { x = BOARD_MIN + hx + 0.5; z = BOARD_MIN_Z + hz + 0.5; break; }
       }
       if (x === undefined) return;
     }

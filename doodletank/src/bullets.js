@@ -3,7 +3,7 @@
 // first thing it touches. Bullet-vs-bullet: an enemy shot and a player shot cancel out.
 import * as THREE from 'three';
 import { makeInkMaterial, INK } from './render.js';
-import { DIRS, BOARD_MIN, BOARD_MAX, T } from './physics.js';
+import { DIRS, BOARD_MIN, BOARD_MAX, BOARD_MIN_Z, BOARD_MAX_Z, T } from './physics.js';
 
 export class BulletManager {
   constructor(scene, grid) {
@@ -59,9 +59,9 @@ export class BulletManager {
             break;
           }
         }
-        if (px < BOARD_MIN - 0.3 || px > BOARD_MAX + 0.3 || pz < BOARD_MIN - 0.3 || pz > BOARD_MAX + 0.3) {
+        if (px < BOARD_MIN - 0.3 || px > BOARD_MAX + 0.3 || pz < BOARD_MIN_Z - 0.3 || pz > BOARD_MAX_Z + 0.3) {
           b.alive = false;
-          cb.onImpact && cb.onImpact(b, THREE.MathUtils.clamp(px, BOARD_MIN, BOARD_MAX), THREE.MathUtils.clamp(pz, BOARD_MIN, BOARD_MAX), null);
+          cb.onImpact && cb.onImpact(b, THREE.MathUtils.clamp(px, BOARD_MIN, BOARD_MAX), THREE.MathUtils.clamp(pz, BOARD_MIN_Z, BOARD_MAX_Z), null);
           break;
         }
         // bullet meets bullet: opposing shots cancel in mid-air

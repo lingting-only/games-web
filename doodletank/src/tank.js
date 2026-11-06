@@ -4,7 +4,7 @@
 // snapping its cross-axis onto a big-cell lane so it lines up with the corridors.
 import * as THREE from 'three';
 import { makeInkMaterial, INK, setInk } from './render.js';
-import { DIRS, snapLane, clampBoard, T } from './physics.js';
+import { DIRS, snapLane, clampBoardX, clampBoardZ, T } from './physics.js';
 import { clamp, angleLerp, wrapAngle } from './util.js';
 
 const TANK_HW = 0.82;       // half extent of the collision square
@@ -125,7 +125,7 @@ export class Tank {
     }
     // ice: keep gliding in the old direction after you stop
     if (this.slide > 0 && !this.moving) { vx = d.x * this.slide; vz = d.z * this.slide; this.slide = Math.max(0, this.slide - dt * 9); }
-    const nx = clampBoard(this.x + vx * dt), nz = clampBoard(this.z + vz * dt);
+    const nx = clampBoardX(this.x + vx * dt), nz = clampBoardZ(this.z + vz * dt);
     let moved = false;
     if (grid) {
       const onIce = grid.tileAt(nx, nz) === T.ICE;
@@ -146,7 +146,7 @@ export class Tank {
         if (ox > 0 && oz > 0) {
           const px = ox < oz ? this.x + (dx > 0 ? ox : -ox) : this.x;
           const pz = ox < oz ? this.z : this.z + (dz > 0 ? oz : -oz);
-          if (!grid.rectBlocked(px, pz, this.hw) || freer(px, pz)) { this.x = clampBoard(px); this.z = clampBoard(pz); }
+          if (!grid.rectBlocked(px, pz, this.hw) || freer(px, pz)) { this.x = clampBoardX(px); this.z = clampBoardZ(pz); }
         }
       }
     } else { this.x = nx; this.z = nz; moved = true; }

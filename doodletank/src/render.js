@@ -4,7 +4,7 @@
 // reworked for an orthographic camera (depth is linear, so the edge test works on raw depth).
 import * as THREE from 'three';
 
-export const INK = { BLUE: 0, RED: 1, BLACK: 2, ORANGE: 3, GREEN: 4, PINK: 5 };
+export const INK = { BLUE: 0, RED: 1, BLACK: 2, ORANGE: 3, GREEN: 4, PINK: 5, ICE: 6 };
 export const INK_COLORS = [
   new THREE.Vector3(0.10, 0.19, 0.76), // blue ballpoint
   new THREE.Vector3(0.86, 0.12, 0.20), // red pen
@@ -12,6 +12,7 @@ export const INK_COLORS = [
   new THREE.Vector3(0.92, 0.55, 0.08), // orange highlighter
   new THREE.Vector3(0.12, 0.60, 0.30), // green
   new THREE.Vector3(0.90, 0.40, 0.66), // pink
+  new THREE.Vector3(0.55, 0.86, 0.94), // pale frost blue — ice floes, never water
 ];
 export const LIGHT_WORLD = new THREE.Vector3(0.35, 0.85, 0.40).normalize();
 export const shared = { uLightDir: { value: new THREE.Vector3(0, 1, 0) }, uTime: { value: 0 } };
@@ -96,7 +97,7 @@ uniform mat4 uInvView;
 uniform float uSolid;
 uniform float uLineSpacing;
 uniform vec3 uPaper;
-uniform vec3 uInks[6];
+uniform vec3 uInks[7];
 
 float hash21(vec2 p) { p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
 float vnoise(vec2 p) {
@@ -107,7 +108,8 @@ float vnoise(vec2 p) {
 vec3 inkColor(float id) {
   int i = int(id + 0.5);
   if (i <= 0) return uInks[0]; if (i == 1) return uInks[1]; if (i == 2) return uInks[2];
-  if (i == 3) return uInks[3]; if (i == 4) return uInks[4]; return uInks[5];
+  if (i == 3) return uInks[3]; if (i == 4) return uInks[4]; if (i == 5) return uInks[5];
+  return uInks[6];
 }
 float stripes(vec2 p, vec2 dir, float spacing, float width) {
   float t = dot(p, vec2(-dir.y, dir.x));
@@ -197,8 +199,10 @@ void main() {
   if (uSolid > 0.5) {
     vec3 base;
     if (shade < 0.0) {
-      // 填充面：水面读作水，其余（地面/阴影/焦痕）统一为草地色调
-      base = (s.g > -0.5 && s.g < 0.5) ? vec3(0.33, 0.60, 0.80) : vec3(0.60, 0.69, 0.56);
+      // 填充面：冰面是浅霜蓝，水面读作水，其余（地面/阴影/焦痕）统一为草地色调
+      if (s.g > 5.5) base = vec3(0.68, 0.88, 0.95);
+      else if (s.g > -0.5 && s.g < 0.5) base = vec3(0.33, 0.60, 0.80);
+      else base = vec3(0.60, 0.69, 0.56);
     } else if (s.g < 0.5) base = vec3(0.24, 0.46, 0.84);        // 蓝：玩家坦克
     else if (s.g < 1.5) base = vec3(0.86, 0.26, 0.20);          // 红：子弹与爆炸
     else if (s.g < 2.5) base = vec3(0.54, 0.57, 0.62);          // 石墨：敌军与钢墙
@@ -250,14 +254,14 @@ export class InkRenderer {
     this.resize();
     window.addEventListener('resize', () => this.resize());
   }
-  // fit the whole board with slim margins, whatever the window shape. In landscape the
-  // view is nudged right so the board centres in the space left of the score panel.
-  frame(boardHalf = 15) {
-    const s = boardHalf * 1.13;
+  // fit the widescreen board edge to edge, whatever the window shape. The tilt foreshortens
+  // the board's depth (cos of the tilt angle) and walls add a bit of projected height.
+  frame(boardHalfW = 21, boardHalfH = 13) {
+    const mW = boardHalfW * 1.05;
+    const mH = boardHalfH * 1.05 * Math.cos(this.tilt) + 1.6;
     const a = this.camera.aspect;
-    const halfH = Math.max(s, s / a), halfW = halfH * a;
-    const shift = a > 0.9 ? halfH * 0.14 : 0;   // room for the tally panel on the right
-    this.camera.left = -halfW + shift; this.camera.right = halfW + shift; this.camera.top = halfH; this.camera.bottom = -halfH;
+    const halfH = Math.max(mH, mW / a), halfW = halfH * a;
+    this.camera.left = -halfW; this.camera.right = halfW; this.camera.top = halfH; this.camera.bottom = -halfH;
     this.camera.updateProjectionMatrix();
     const az = this.tilt;
     const d = this.camDist;

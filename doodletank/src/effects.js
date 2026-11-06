@@ -74,7 +74,7 @@ export class Effects {
   fireworks(n = 8) {
     for (let i = 0; i < n; i++) {
       this.schedule(i * 0.22, () => {
-        const x = rand(-13, 13), z = rand(-13, 11);
+        const x = rand(-20, 20), z = rand(-12, 10);
         const ink = choose([INK.RED, INK.ORANGE, INK.GREEN, INK.PINK, INK.BLUE]);
         this.strokeBurst(x, z, ink, 22, 6.5, { y: 1.3, life: 0.75, size: 1.4 });
         this.ring(x, z, ink, 3.2, 0.5);

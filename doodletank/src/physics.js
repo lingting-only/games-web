@@ -1,10 +1,13 @@
-// Board physics: the battlefield is a 15x15 grid of big cells (2 world units each) tracked at
-// half-cell resolution (30x30 cells of 1 unit) so brick walls break in strips like the original.
+// Board physics: the battlefield is a WIDESCREEN grid of big cells (2 world units each) tracked
+// at half-cell resolution so brick walls break in strips like the original. 21x13 big cells
+// (42x26 half cells) — with the camera's tilt this fills a 16:9 screen edge to edge.
 // Tanks are axis-aligned squares (they only face four ways), bullets are small circles.
-export const BIG = 15;            // big cells per side
-export const HALF_N = BIG * 2;    // half cells per side
-export const CELL = 2;            // world units per big cell
-export const BOARD_MIN = -HALF_N / 2, BOARD_MAX = HALF_N / 2;
+export const BIG_W = 21, BIG_H = 13;   // big cells across / down
+export const HALF_N = BIG_W * 2;       // half cells across (42)
+export const HALF_N_Z = BIG_H * 2;     // half cells down (26)
+export const CELL = 2;                 // world units per big cell
+export const BOARD_MIN = -BIG_W, BOARD_MAX = BIG_W;        // x range
+export const BOARD_MIN_Z = -BIG_H, BOARD_MAX_Z = BIG_H;    // z range
 
 export const T = { EMPTY: 0, BRICK: 1, STEEL: 2, WATER: 3, TREE: 4, ICE: 5, EAGLE: 6 };
 // what blocks what
@@ -19,29 +22,30 @@ export const DIRS = {
 };
 export const DIR_NAMES = ['up', 'right', 'down', 'left'];
 
-export function cellCenter(cx, cy) { return { x: BOARD_MIN + cx * CELL + CELL / 2, z: BOARD_MIN + cy * CELL + CELL / 2 }; }
-// snap a coordinate to the centre of a big cell lane (even world units, since the board starts
-// at -13) — tanks ride these lanes so they line up with the corridors
+export function cellCenter(cx, cy) { return { x: BOARD_MIN + cx * CELL + CELL / 2, z: BOARD_MIN_Z + cy * CELL + CELL / 2 }; }
+// snap a coordinate to the centre of a big cell lane (even world units — both board mins are
+// odd, so every cell centre lands on an even coordinate) — tanks ride these lanes
 export function snapLane(v) { return Math.round(v / 2) * 2; }
-export function clampBoard(v) { return Math.min(BOARD_MAX - 0.01, Math.max(BOARD_MIN + 0.01, v)); }
+export function clampBoardX(v) { return Math.min(BOARD_MAX - 0.01, Math.max(BOARD_MIN + 0.01, v)); }
+export function clampBoardZ(v) { return Math.min(BOARD_MAX_Z - 0.01, Math.max(BOARD_MIN_Z + 0.01, v)); }
 
 export class Grid {
   constructor() {
-    this.tiles = new Uint8Array(HALF_N * HALF_N);
+    this.tiles = new Uint8Array(HALF_N * HALF_N_Z);
     this.onTile = null;          // (hx, hz, old, now) — used for remote sync + mesh rebuild
   }
   clear() { this.tiles.fill(T.EMPTY); }
   idx(hx, hz) { return hz * HALF_N + hx; }
-  get(hx, hz) { return (hx < 0 || hz < 0 || hx >= HALF_N || hz >= HALF_N) ? T.STEEL : this.tiles[this.idx(hx, hz)]; }
+  get(hx, hz) { return (hx < 0 || hz < 0 || hx >= HALF_N || hz >= HALF_N_Z) ? T.STEEL : this.tiles[this.idx(hx, hz)]; }
   set(hx, hz, t) {
-    if (hx < 0 || hz < 0 || hx >= HALF_N || hz >= HALF_N) return;
+    if (hx < 0 || hz < 0 || hx >= HALF_N || hz >= HALF_N_Z) return;
     const i = this.idx(hx, hz), old = this.tiles[i];
     if (old === t) return;
     this.tiles[i] = t;
     if (this.onTile) this.onTile(hx, hz, old, t);
   }
-  worldToCell(x, z) { return { hx: Math.floor(x - BOARD_MIN), hz: Math.floor(z - BOARD_MIN) }; }
-  cellCenterW(hx, hz) { return { x: BOARD_MIN + hx + 0.5, z: BOARD_MIN + hz + 0.5 }; }
+  worldToCell(x, z) { return { hx: Math.floor(x - BOARD_MIN), hz: Math.floor(z - BOARD_MIN_Z) }; }
+  cellCenterW(hx, hz) { return { x: BOARD_MIN + hx + 0.5, z: BOARD_MIN_Z + hz + 0.5 }; }
 
   // would a square of half-extent hw centred at (x,z) overlap something tanks can't cross?
   rectBlocked(x, z, hw, skipTrees = true) {
@@ -88,7 +92,9 @@ export class Grid {
       out.push({ hx: hit.hx, hz: hit.hz, type: hit.type });
       if (hit.type === T.BRICK) {
         const w = 0.45, along = dir.x !== 0;
-        const lo = Math.floor(cross - w - BOARD_MIN), hi = Math.floor(cross + w - BOARD_MIN);
+        // cross is a z coordinate when travelling along x (and vice versa) — use that axis' origin
+        const base = along ? BOARD_MIN_Z : BOARD_MIN;
+        const lo = Math.floor(cross - w - base), hi = Math.floor(cross + w - base);
         for (let n = lo; n <= hi; n++) {
           const c = along ? { hx: hit.hx, hz: n } : { hx: n, hz: hit.hz };
           const key = c.hz * HALF_N + c.hx;

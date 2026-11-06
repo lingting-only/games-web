@@ -4,7 +4,7 @@
 // state streaming, DOM HUD over an ink-drawn three.js board.
 import * as THREE from 'three';
 import { InkRenderer, INK } from './render.js';
-import { Grid, T, DIRS, BOARD_MIN, cellCenter, HALF_N, BIG, CELL } from './physics.js';
+import { Grid, T, DIRS, cellCenter, HALF_N, BIG_W, BIG_H, CELL } from './physics.js';
 import { Input } from './input.js';
 import { buildLevel, SPAWNS, MAP_COUNT, EAGLE_CELL } from './level.js';
 import { EnemyManager } from './enemies.js';
@@ -21,7 +21,7 @@ import { clamp, rand } from './util.js';
 
 const canvas = document.getElementById('c');
 const R = new InkRenderer(canvas);
-R.frame(BIG * CELL / 2);
+R.frame(BIG_W * CELL / 2, BIG_H * CELL / 2);
 const grid = new Grid();
 const input = new Input(canvas);
 const hud = new HUD(document.getElementById('hud'));
@@ -37,7 +37,7 @@ localStorage.setItem('tank_name', myName);
 
 // the base's brick ring (half-cells), used by the shovel power-up
 const RING_CELLS = [];
-for (const c of [{ cx: 6, cy: 13 }, { cx: 7, cy: 13 }, { cx: 8, cy: 13 }, { cx: 6, cy: 14 }, { cx: 8, cy: 14 }]) {
+for (const c of [{ cx: 9, cy: 11 }, { cx: 10, cy: 11 }, { cx: 11, cy: 11 }, { cx: 9, cy: 12 }, { cx: 11, cy: 12 }]) {
   for (let dz = 0; dz < 2; dz++) for (let dx = 0; dx < 2; dx++) RING_CELLS.push({ hx: c.cx * 2 + dx, hz: c.cy * 2 + dz });
 }
 
