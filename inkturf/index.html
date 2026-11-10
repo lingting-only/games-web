@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>涂鸦圈地战 · Ink Turf</title>
+<meta name="description" content="画在作业本上的圈地对战。点一下纸面，笔尖小人就跑过去画线；画回自己的领地，圈住的地方就归你。">
+<meta name="theme-color" content="#f6f3e6">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%23f6f3e6'/><path d='M5 22 C6 9 22 6 27 12 C30 18 22 27 14 26 C9 25 6 24 5 22 Z' fill='none' stroke='%231a30c0' stroke-width='2.4' stroke-linecap='round'/><circle cx='9' cy='20' r='2.4' fill='%23d02030'/></svg>">
+<link rel="stylesheet" href="./style.css">
+<script type="importmap">
+{ "imports": {
+  "three": "./vendor/three/three.module.js",
+  "three/addons/": "./vendor/three/addons/"
+} }
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud"></div>
+<script src="./vendor/peerjs/peerjs.min.js"></script>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

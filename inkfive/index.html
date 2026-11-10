@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>墨水连珠 · Ink Five</title>
+<meta name="description" content="画在作业本上的五子棋：蓝圆珠笔画 ○，红笔画 ✗，抢道具格炸墨渍、擦棋子、连下两手，先连成五子者胜。">
+<meta name="theme-color" content="#f6f3e6">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%23f6f3e6'/><path d='M3 6 H29 M3 12 H29 M3 18 H29 M3 24 H29' stroke='%231a30c0' stroke-width='.7' opacity='.35'/><circle cx='10' cy='12' r='3.4' fill='none' stroke='%231a30c0' stroke-width='2'/><path d='M20 9 l7 7 M27 9 l-7 7' stroke='%23d02030' stroke-width='2' stroke-linecap='round'/><circle cx='17' cy='21' r='2.6' fill='none' stroke='%231a30c0' stroke-width='1.8'/></svg>">
+<link rel="stylesheet" href="./style.css">
+<script type="importmap">
+{ "imports": {
+  "three": "./vendor/three/three.module.js",
+  "three/addons/": "./vendor/three/addons/"
+} }
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud"></div>
+<script src="./vendor/peerjs/peerjs.min.js"></script>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

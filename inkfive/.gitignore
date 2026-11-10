@@ -1,0 +1,8 @@
+.DS_Store
+node_modules/
+*.log
+.if-verify/
+.if-*.mjs
+.if-*.png
+.verify*.mjs
+.verify*.png

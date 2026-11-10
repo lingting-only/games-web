@@ -1,0 +1,8 @@
+services:
+  paperwings:
+    build: .
+    image: paperwings:latest
+    container_name: paperwings
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8903:80"

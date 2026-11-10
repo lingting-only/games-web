@@ -1,0 +1,8 @@
+services:
+  inkturf:
+    build: .
+    image: inkturf:latest
+    container_name: inkturf
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8904:80"

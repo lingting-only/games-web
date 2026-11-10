@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>折纸空战 · Paper Wings</title>
+<meta name="description" content="画在作业本上的折纸飞机空战。点一下就飞，再点一下就把纸团扔出去。">
+<meta name="theme-color" content="#f6f3e6">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%23f6f3e6'/><path d='M4 16 L28 5 L20 27 L15 19 Z' fill='none' stroke='%231a30c0' stroke-width='2' stroke-linejoin='round'/><path d='M15 19 L28 5' stroke='%23d02030' stroke-width='1.5'/></svg>">
+<link rel="stylesheet" href="./style.css">
+<script type="importmap">
+{ "imports": {
+  "three": "./vendor/three/three.module.js",
+  "three/addons/": "./vendor/three/addons/"
+} }
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud"></div>
+<script src="./vendor/peerjs/peerjs.min.js"></script>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

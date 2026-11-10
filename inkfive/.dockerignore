@@ -1,0 +1,11 @@
+.git
+.gitignore
+*.md
+.claude
+serve.py
+Dockerfile
+docker-compose.yml
+.dockerignore
+.if-verify/
+.verify*
+.if-*
