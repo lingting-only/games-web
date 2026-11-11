@@ -288,10 +288,38 @@ const GAMES = [
     tags: ['单击操作', '回合制棋类', '单机 / 联机', '2v2'],
     href: './inkfive/',
     art: 'inkfive'
+  },
+  {
+    title: '盖章大战',
+    en: 'Stamp Duel',
+    desc: '攒墨水、点车道、盖下一枚印章：铅笔兵、回形针弓手、橡皮盾与墨水瓶巨兽自动沿三路推进，先打爆对面墨水瓶者胜。10 关怪潮会针对你的兵种反制、后期成波爆发，或联机 1v1 / 2v2 共享半场。',
+    tags: ['单击操作', '三车道推塔', '单机 / 联机', '2v2'],
+    href: './stampduel/',
+    art: 'stampduel'
   }
 ];
 
 function art(name) {
+  if (name === 'stampduel') {
+    return `<svg viewBox="0 0 320 180" aria-hidden="true">
+      <g fill="none" stroke="#1a30c0" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M0 30 H320 M0 60 H320 M0 90 H320 M0 120 H320 M0 150 H320" stroke-width="1" opacity=".14"/>
+        <path d="M20 46 H300 M20 90 H300 M20 134 H300" stroke-width="1.5" opacity=".5"/>
+        <path d="M160 32 V148" stroke="#d02030" stroke-width="2.2" stroke-dasharray="6 5"/>
+        <g stroke-width="2.4"><path d="M26 62 h20 v26 q-2 7 -10 7 q-8 0 -10 -7 Z"/><path d="M31 55 h10 v7 h-10 Z"/></g>
+        <g stroke="#d02030" stroke-width="2.4"><path d="M274 62 h20 v26 q-2 7 -10 7 q-8 0 -10 -7 Z"/><path d="M279 55 h10 v7 h-10 Z"/></g>
+        <rect x="72" y="54" width="20" height="20" rx="3" stroke-width="2.4"/>
+        <path d="M77 64 h10 M82 59 v10" stroke-width="1.8"/>
+        <rect x="104" y="98" width="20" height="20" rx="3" stroke-width="2.4"/>
+        <path d="M109 108 h10 M114 103 v10" stroke-width="1.6"/>
+        <rect x="216" y="98" width="20" height="20" rx="3" stroke="#d02030" stroke-width="2.4"/>
+        <path d="M221 108 h10 M226 103 v10" stroke="#d02030" stroke-width="1.6"/>
+        <path d="M138 68 q16 -4 30 2" stroke="#e8801a" stroke-width="1.7" stroke-dasharray="3 4"/>
+        <circle cx="134" cy="68" r="3.6" fill="#1a2430" stroke="none"/>
+        <circle cx="188" cy="112" r="3.6" fill="#d02030" stroke="none"/>
+      </g>
+    </svg>`;
+  }
   if (name === 'inkfive') {
     return `<svg viewBox="0 0 320 180" aria-hidden="true">
       <g fill="none" stroke="#1a30c0" stroke-linecap="round" stroke-linejoin="round">
