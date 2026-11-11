@@ -242,6 +242,14 @@ footer {
 /* 新增游戏：在 GAMES 里加一项即可。href 指向游戏目录（目录里放 index.html）。 */
 const GAMES = [
   {
+    title: '几猫港区 · 突击小队',
+    en: 'Port Squad',
+    desc: '国产 3A 体验版意外解锁联机模式：2–4 人组队突入几猫港区，共享三处中继进度，倒地可被队友救起，全员登船才算撤离成功。房间码 / 快速匹配，WebRTC 点对点直连。',
+    tags: ['第一人称射击', '3D 港区', '联机组队', '最多 4 人'],
+    href: './jimao-squad/',
+    art: 'jimao-squad'
+  },
+  {
     title: '涂鸦街区',
     en: 'Doodle District',
     desc: '用蓝圆珠笔在作业本上画出来的第一人称射击。抓钩翻越楼顶，把子弹削回涂鸦怪，看看能撑过多少波。',
@@ -300,6 +308,34 @@ const GAMES = [
 ];
 
 function art(name) {
+  if (name === 'jimao-squad') {
+    return `<svg viewBox="0 0 320 180" aria-hidden="true">
+      <g fill="none" stroke="#1a30c0" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M0 30 H320 M0 60 H320 M0 90 H320 M0 120 H320 M0 150 H320" stroke-width="1" opacity=".16"/>
+        <path d="M16 140 q44 -5 86 0 t86 0 t86 0" stroke-width="2.2" opacity=".7"/>
+        <g stroke-width="2.2">
+          <rect x="24" y="96" width="66" height="42" rx="3"/><path d="M40 96 v42 M60 96 v42 M76 96 v42" opacity=".6"/>
+          <rect x="40" y="70" width="52" height="26" rx="3"/><path d="M56 70 v26 M74 70 v26 M88 70 v26" opacity=".6"/>
+          <rect x="228" y="100" width="66" height="38" rx="3"/><path d="M246 100 v38 M268 100 v38 M286 100 v38" opacity=".6"/>
+        </g>
+        <g stroke-width="2.2"><path d="M180 138 V32 M164 32 h94 M258 32 v18"/><path d="M168 32 h24" stroke-width="3"/></g>
+        <path d="M258 50 v10 q0 6 -6 6 q-6 0 -6 -6" stroke-width="1.8"/>
+        <path d="M180 54 l14 10 M180 54 l-14 10" opacity=".5"/>
+        <g stroke-width="2.2" stroke="#e8801a">
+          <path d="M52 156 l7 -7 l7 7 l-7 7 Z"/><path d="M152 156 l7 -7 l7 7 l-7 7 Z"/><path d="M266 156 l7 -7 l7 7 l-7 7 Z"/>
+        </g>
+        <path d="M20 164 H300" stroke="#d02030" stroke-width="1.4" stroke-dasharray="5 7" opacity=".5"/>
+        <g stroke-width="2.2">
+          <circle cx="106" cy="106" r="5"/><path d="M106 111 v12 M106 116 l-6 4 M106 116 l6 4 M106 123 l-5 8 M106 123 l5 8"/>
+          <circle cx="134" cy="106" r="5"/><path d="M134 111 v12 M134 116 l-6 4 M134 116 l6 4 M134 123 l-5 8 M134 123 l5 8"/>
+        </g>
+        <path d="M112 110 q11 -9 22 0" stroke="#d02030" stroke-width="1.8" stroke-dasharray="4 4"/>
+        <path d="M196 118 q14 -14 28 0 M202 124 q8 -8 16 0" stroke="#e8801a" stroke-width="1.8"/>
+        <circle cx="210" cy="112" r="3.6" fill="#d02030" stroke="none"/>
+        <path d="M292 40 q8 -6 16 0 M296 52 q6 -4 12 0" stroke-width="1.6" opacity=".45"/>
+      </g>
+    </svg>`;
+  }
   if (name === 'stampduel') {
     return `<svg viewBox="0 0 320 180" aria-hidden="true">
       <g fill="none" stroke="#1a30c0" stroke-linecap="round" stroke-linejoin="round">
